@@ -1,8 +1,17 @@
 #!/bin/sh
 
-mkdir -p ../build/
+set -eu
 
-ScriptDirectory="$(dirname "$(readlink -f "$0")")"
-cd "$ScriptDirectory"
+ThisDir="$(dirname "$(readlink -f "$0")")"
+cd "$ThisDir"
 
-clang -Wno-write-strings -o ../build/cshell cshell.cpp
+mkdir -p ../build > /dev/null 2>&1
+cshell="../build/cshell"
+
+if [ ! -x "$cshell" ] 
+then
+echo 
+ clang -Wno-write-strings -g -o "$cshell" cshell.cpp
+fi
+
+../build/cshell

@@ -1,0 +1,2 @@
+- Reuse one child process for running commands.
+  - Maybe two if you need to pipe?
