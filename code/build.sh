@@ -2,16 +2,14 @@
 
 set -eu
 
-ThisDir="$(dirname "$(readlink -f "$0")")"
-cd "$ThisDir"
+cd "$(dirname "$(readlink -f "$0")")"
 
-mkdir -p ../build > /dev/null 2>&1
+mkdir -p ../build
 cshell="../build/cshell"
 
 if [ ! -x "$cshell" ] 
 then
-echo 
  clang -Wno-write-strings -g -o "$cshell" cshell.cpp
 fi
 
-../build/cshell
+$cshell norebuild rebuild
