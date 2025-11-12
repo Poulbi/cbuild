@@ -5,7 +5,7 @@
 
 struct str8
 {
-    psize Size;
+    umm Size;
     u8 *Data;
 };
 #define S8Lit(String) (str8){.Size = (sizeof((String)) - 1), .Data = (u8 *)(String)}
@@ -13,17 +13,17 @@ struct str8
 struct str8_list
 {
     str8 *Strings;
-    psize Count;
-    psize Capacity;
+    umm Count;
+    umm Capacity;
 };
 
 struct linux_command_result
 {
     b32 Error;
     
-    psize StdoutBytesToRead;
+    umm StdoutBytesToRead;
     b32 StdinBytesToWrite;
-    psize StderrBytesToRead;
+    umm StderrBytesToRead;
     int Stdout;
     int Stdin;
     int Stderr;

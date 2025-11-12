@@ -1,6 +1,6 @@
-psize CountCString(char *String)
+umm CountCString(char *String)
 {
-    psize Result = 0;
+    umm Result = 0;
     
     while(*String++) Result++;
     
@@ -26,7 +26,7 @@ do \
 str8 Strings[] = {__VA_ARGS__}; \
 _Str8ListAppendMultiple(List, ArrayCount(Strings), Strings); \
 } while(0);
-void _Str8ListAppendMultiple(str8_list *List, psize Count, str8 *Strings)
+void _Str8ListAppendMultiple(str8_list *List, umm Count, str8 *Strings)
 {
     for(u32 At = 0;
         At < Count;
@@ -36,16 +36,16 @@ void _Str8ListAppendMultiple(str8_list *List, psize Count, str8 *Strings)
     }
 }
 
-str8 Str8ListJoin(str8_list *List, psize BufferSize, u8 *Buffer, u8 Char)
+str8 Str8ListJoin(str8_list List, umm BufferSize, u8 *Buffer, u8 Char)
 {
     str8 Result = {};
     
-    psize BufferIndex = 0;
-    for(psize At = 0;
-        At < List->Count;
+    umm BufferIndex = 0;
+    for(umm At = 0;
+        At < List.Count;
         At++)
     {
-        str8 *StringAt = List->Strings + At;
+        str8 *StringAt = List.Strings + At;
         
         Assert(BufferIndex + StringAt->Size < BufferSize);
         MemoryCopy(Buffer + BufferIndex, StringAt->Data, StringAt->Size);

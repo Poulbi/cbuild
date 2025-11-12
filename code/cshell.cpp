@@ -21,7 +21,7 @@
 
 #include "linux.cpp"
 
-str8 GetSelfBuildCommand()
+str8_list CommonBuildCommand()
 {
     str8_list BuildCommand = {};
     u8 StringsBuffer[4096] = {};
@@ -98,18 +98,14 @@ str8 GetSelfBuildCommand()
     printf("%*s mode\n", (int)Mode.Size, Mode.Data);
     printf("%*s compile\n", (int)Compiler.Size, Compiler.Data);
     
-    Str8ListAppend(&BuildCommand, S8Lit("-o cshell"));
-    Str8ListAppend(&BuildCommand, S8Lit("../code/cshell.cpp"));
-    
-    u8 Buffer[4096] = {};
-    str8 Command = Str8ListJoin(&BuildCommand, sizeof(Buffer), Buffer, ' ');
-    
-    return Command;
+    return BuildCommand;
 }
 
 int main(int ArgsCount, char *Args[], char *Env[])
 {
     LinuxChangeToExecutableDirectory(Args);
+    
+    u8 OutputBuffer[Kilobytes(64)] = {};
     
     b32 Rebuild = true;
     b32 ForceRebuild = false;
@@ -134,12 +130,16 @@ int main(int ArgsCount, char *Args[], char *Env[])
     if(ForceRebuild || Rebuild)
     {
         printf("[self compile]\n");
-        str8 BuildCommand = GetSelfBuildCommand();
+        str8_list BuildCommandList = CommonBuildCommand();
+        Str8ListAppendMultiple(&BuildCommandList,  S8Lit("-o cshell"), S8Lit("../code/cshell.cpp"));
+        str8 BuildCommand = Str8ListJoin(BuildCommandList, sizeof(OutputBuffer), OutputBuffer, ' ');
+        
         //printf("%*s\n", (int)BuildCommand.Size, BuildCommand.Data);
         LinuxRebuildSelf(BuildCommand, ArgsCount, Args, Env);
     }
     else
-    {
+    {    
+        
     }
     
     return 0;

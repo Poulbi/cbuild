@@ -33,9 +33,9 @@ int LinuxErrorWrapperGetAvailableBytesToRead(int File)
     return BytesToRead;
 }
 
-psize LinuxErrorWrapperRead(int File, void *Buffer, psize BytesToRead)
+umm LinuxErrorWrapperRead(int File, void *Buffer, umm BytesToRead)
 {
-    psize BytesRead = read(File, Buffer, BytesToRead);
+    umm BytesRead = read(File, Buffer, BytesToRead);
     if(BytesRead == -1)
     {
         perror("read");
@@ -47,7 +47,7 @@ psize LinuxErrorWrapperRead(int File, void *Buffer, psize BytesToRead)
 }
 
 //-
-str8 LinuxFindCommandInPATH(psize BufferSize, u8 *Buffer, char *Command, char *Env[])
+str8 LinuxFindCommandInPATH(umm BufferSize, u8 *Buffer, char *Command, char *Env[])
 {
     char **VarAt = Env;
     char Search[] = "PATH=";
@@ -194,13 +194,13 @@ linux_command_result LinuxRunCommandString(str8 Command, char *Env[], b32 Pipe)
     char *Args[64] = {};
     
     u8 ArgsBuffer[1024] = {};
-    psize ArgsBufferIndex = 0;
+    umm ArgsBufferIndex = 0;
     
     // 1. split on whitespace into null-terminated strings.
     //    TODO: skip quotes
     u32 ArgsCount = 0;
-    psize Start = 0;
-    for(psize At = 0;
+    umm Start = 0;
+    for(umm At = 0;
         At <= Command.Size;
         At++)
     {
@@ -208,7 +208,7 @@ linux_command_result LinuxRunCommandString(str8 Command, char *Env[], b32 Pipe)
         {
             Args[ArgsCount++] = (char *)(ArgsBuffer + ArgsBufferIndex);
             Assert(ArgsCount < ArrayCount(Args));
-            psize Size = At - Start;
+            umm Size = At - Start;
             MemoryCopy(ArgsBuffer + ArgsBufferIndex, Command.Data + Start, Size);
             ArgsBufferIndex += Size;
             ArgsBuffer[ArgsBufferIndex++] = 0;
@@ -236,6 +236,15 @@ linux_command_result LinuxRunCommandString(str8 Command, char *Env[], b32 Pipe)
 }
 
 internal void
+LinuxChangeDirectory(char *Path)
+{
+    if(chdir(Path) == -1)
+    {
+        perror("chdir");
+    }
+}
+
+internal void
 LinuxChangeToExecutableDirectory(char *Args[])
 {
     char *ExePath = Args[0];
@@ -253,10 +262,8 @@ LinuxChangeToExecutableDirectory(char *Args[])
     }
     MemoryCopy(ExecutableDirPath, ExePath, LastSlash);
     ExecutableDirPath[LastSlash] = 0;
-    if(chdir(ExecutableDirPath) == -1)
-    {
-        perror("chdir");
-    }
+    
+    LinuxChangeDirectory(ExecutableDirPath);
 }
 
 void LinuxRebuildSelf(str8 BuildCommand, int ArgsCount, char *Args[], char *Env[])
@@ -264,8 +271,8 @@ void LinuxRebuildSelf(str8 BuildCommand, int ArgsCount, char *Args[], char *Env[
     linux_command_result CommandResult = LinuxRunCommandString(BuildCommand, Env, true);
     if(CommandResult.Error)
     {
-        u8 Buf[64 * 1024] = {};
-        psize BytesRead = LinuxErrorWrapperRead(CommandResult.Stderr, Buf, CommandResult.StderrBytesToRead);
+        u8 Buf[Kilobytes(64)] = {};
+        umm BytesRead = LinuxErrorWrapperRead(CommandResult.Stderr, Buf, CommandResult.StderrBytesToRead);
         printf("%*s\n", (int)BytesRead, Buf);
     }
     
