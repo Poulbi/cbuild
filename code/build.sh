@@ -6,11 +6,11 @@ ScriptDirectory="$(dirname "$(readlink -f "$0")")"
 cd "$ScriptDirectory"
 
 mkdir -p ../build
-cshell="../build/cshell"
+Output="../build/build"
 
-if [ ! -x "$cshell" ] 
+if [ ! -x "$Output" ] 
 then
- cc -Wno-write-strings -g -o "$cshell" cshell.cpp
+ cc -Wno-write-strings -g -o "$Output" build.cpp
 fi
 
-$cshell
+$Output

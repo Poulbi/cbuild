@@ -478,7 +478,7 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
     {
         printf("[self compile]\n");
         str8_list BuildCommandList = CommonBuildCommand(false, true, true);
-        Str8ListAppend(&BuildCommandList, S8Lit("-o cshell ../code/cshell.cpp"));
+        Str8ListAppend(&BuildCommandList, S8Lit("-o build ../code/build.cpp"));
         str8 BuildCommand = Str8ListJoin(BuildCommandList, sizeof(OutputBuffer), OutputBuffer, ' ');
         
         //printf("%*s\n", (int)BuildCommand.Size, BuildCommand.Data);
@@ -502,7 +502,7 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
                 Arguments[At] = Args[At];
             }
         }
-        Arguments[0] = "./cshell";
+        Arguments[0] = "./build";
         // NOTE(luca): We changed to the Executable's build path
         Arguments[At++] = "norebuild";
         Assert(At < ArrayCount(Arguments));
