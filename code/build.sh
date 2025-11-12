@@ -2,14 +2,15 @@
 
 set -eu
 
-cd "$(dirname "$(readlink -f "$0")")"
+ScriptDirectory="$(dirname "$(readlink -f "$0")")"
+cd "$ScriptDirectory"
 
 mkdir -p ../build
 cshell="../build/cshell"
 
 if [ ! -x "$cshell" ] 
 then
- clang -Wno-write-strings -g -o "$cshell" cshell.cpp
+ cc -Wno-write-strings -g -o "$cshell" cshell.cpp
 fi
 
-$cshell norebuild rebuild
+$cshell
