@@ -68,7 +68,7 @@ void _Str8ListAppendMultiple(str8_list *List, umm Count, str8 *Strings)
     }
 }
 
-str8 Str8ListJoin(str8_list List, umm BufferSize, u8 *Buffer, u8 Char)
+str8 Str8ListJoin(str8_list List, str8 Buffer, u8 Char)
 {
     str8 Result = {};
     
@@ -79,16 +79,17 @@ str8 Str8ListJoin(str8_list List, umm BufferSize, u8 *Buffer, u8 Char)
     {
         str8 *StringAt = List.Strings + At;
         
-        Assert(BufferIndex + StringAt->Size < BufferSize);
-        MemoryCopy(Buffer + BufferIndex, StringAt->Data, StringAt->Size);
+        Assert(BufferIndex + StringAt->Size < Buffer.Size);
+        MemoryCopy(Buffer.Data + BufferIndex, StringAt->Data, StringAt->Size);
         BufferIndex += StringAt->Size;
         if(Char)
         {
-            Buffer[BufferIndex++] = Char;
+            Buffer.Data[BufferIndex] = Char;
+            BufferIndex += 1;
         }
     }
     
-    Result.Data = Buffer;
+    Result.Data = Buffer.Data;
     Result.Size = BufferIndex;
     
     return Result;

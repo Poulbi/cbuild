@@ -3,6 +3,9 @@
 #ifndef OS_WINDOWS_C
 #define OS_WINDOWS_C
 
+//~ Constants
+// NOTE(luca): Because windows cannot overwrite an opened file, we create a helper executable that will do the rest for us.
+#define CBUILD_TEMP_EXE "cbuild_temp.exe"
 
 //~ Types
 struct windows_command_result
@@ -13,6 +16,8 @@ struct windows_command_result
 typedef struct windows_command_result windows_command_result;
 
 #endif // OS_WINDOWS_C
+
+//~ Implementation
 
 #ifdef OS_WINDOWS_IMPLEMENTATION
 
@@ -41,7 +46,8 @@ WindowsRunCommand(u8 *Command, b32 Pipe)
     } 
     else 
     {
-        printf("CreateProcess failed (%d).\n", GetLastError());
+        printf("ERROR: CreateProcess failed (%d).\n", GetLastError());
+        printf("Command: %s\n", Command);
     }
     
 }
@@ -51,6 +57,7 @@ WindowsRunCommandString(str8 Command, b32 Pipe)
 {
     windows_command_result Result = {0};
     
+    // NOTE(luca): Ensure command is null terminated.
     Command.Data[Command.Size] = 0;
     WindowsRunCommand(Command.Data, Pipe);
     
@@ -86,41 +93,50 @@ WindowsRebuildSelf(str8 StringsBuffer, str8 OutputBuffer,
     if(ForceRebuild || Rebuild)
     {
         printf("[self compile]\n");
-        str8_list BuildCommandList = CommonBuildCommand(StringsBuffer, false, true, true);
         
-        Str8ListAppend(&BuildCommandList, S8Lit(__FILE__));
-        
-        str8 BuildCommand = Str8ListJoin(BuildCommandList, OutputBuffer.Size, OutputBuffer.Data, ' ');
-        
-        //printf("%*s\n", (int)BuildCommand.Size, BuildCommand.Data);
-        windows_command_result CommandResult = WindowsRunCommandString(BuildCommand, true);
-        
-        str8_list CommandList = {0};
-        CommandList.Strings = (str8 *)(OutputBuffer.Data);
-        CommandList.Capacity = OutputBuffer.Size;
-        
-        // NOTE(luca): Run without rebuilding
-        s32 At;
-        for(At = 0;
-            At < ArgsCount;
-            At++)
-        {
-            // Skip the rebuilding argument
-            if(strcmp(Args[At], "rebuild"))
-            {
-                str8 Arg = {0};
-                Arg.Data = (u8 *)Args[At];
-                Arg.Size = CountCString(Args[At]);
-                Str8ListAppend(&CommandList, Arg); 
-            }
+        // Build self 
+        {        
+            str8_list BuildCommandList = CommonBuildCommand(StringsBuffer, false, true, true);
+            
+            Str8ListAppend(&BuildCommandList, S8Lit(CBUILD_SOURCE));
+            Str8ListAppend(&BuildCommandList, S8Lit("/link /out:" CBUILD_TEMP_EXE));
+            
+            // NOTE(luca): We use `OutputBuffer` as a temporary second location, TODO: we should take a partition instead.
+            str8 BuildCommand = Str8ListJoin(BuildCommandList, OutputBuffer, ' ');
+            MemoryCopy(StringsBuffer.Data, BuildCommand.Data, BuildCommand.Size);
+            WindowsRunCommandString(BuildCommand, true);
         }
         
-        Str8ListAppend(&CommandList, S8Lit("norebuild"));
-        
-        str8 Command = Str8ListJoin(CommandList, StringsBuffer.Size, StringsBuffer.Data, ' ');
-        Command.Data[Command.Size] = 0;
-        
-        WindowsRunCommand(Command.Data, false);
+        // Run new cbuild.exe
+        {
+            str8_list CommandList = {0};
+            CommandList.Strings = (str8 *)(StringsBuffer.Data);
+            CommandList.Capacity = StringsBuffer.Size;
+            
+            // Set the executable to the new exe
+            Str8ListAppend(&CommandList, S8Lit(".\\" CBUILD_TEMP_EXE));
+            
+            // NOTE(luca): Run without rebuilding
+            s32 At;
+            for(At = 1;
+                At < ArgsCount;
+                At++)
+            {
+                // Skip the rebuilding argument
+                if(strcmp(Args[At], "rebuild"))
+                {
+                    str8 Arg = {0};
+                    Arg.Data = (u8 *)Args[At];
+                    Arg.Size = CountCString(Args[At]);
+                    Str8ListAppend(&CommandList, Arg); 
+                }
+            }
+            
+            Str8ListAppend(&CommandList, S8Lit("norebuild"));
+            
+            str8 Command = Str8ListJoin(CommandList, OutputBuffer, ' ');
+            WindowsRunCommandString(Command, false);
+        }
         
         ExitProcess(0);
     }

@@ -293,7 +293,7 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
     {
         printf("[self compile]\n");
         str8_list BuildCommandList = CommonBuildCommand(false, true, true);
-        Str8ListAppend(&BuildCommandList, S8Lit("-o cbuild " __FILE__));
+        Str8ListAppend(&BuildCommandList, S8Lit("-o cbuild " CBUILD_SOURCE));
         str8 BuildCommand = Str8ListJoin(BuildCommandList, sizeof(OutputBuffer), OutputBuffer, ' ');
         
         //printf("%*s\n", (int)BuildCommand.Size, BuildCommand.Data);

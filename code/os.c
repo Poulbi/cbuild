@@ -20,6 +20,7 @@
 # define OS_Define "-DOS_WINDOWS=1"
 # define OS_PathMaxLength 256
 # define OS_PathSeparator '\\'
+# define CBUILD_SOURCE "..\\code\\cbuild.c"
 
 #elif OS_LINUX
 #define os_command_result linux_command_result
@@ -32,6 +33,7 @@
 #define OS_Define "-DOS_LINUX=1"
 #define OS_PathMaxLength PATH_MAX
 #define OS_PathSeparator '/'
+# define CBUILD_SOURCE "../code/cbuild.c"
 
 #else
 # error "OS not supported or not defined."

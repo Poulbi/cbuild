@@ -1,8 +1,14 @@
+#define RADDBG_MARKUP_IMPLEMENTATION
+#include "raddbg_markup.h"
+
 #include "cbuild.h"
 
 //~ Global variables
 global_variable u8 OutputBuffer[Kilobytes(64)] = {};
 global_variable u8 StringsBuffer[Kilobytes(4)] = {};
+
+raddbg_type_view(str8, no_addr(cast(char *)(array(Data, Size))));
+raddbg_type_view(str8_list, array(Strings, Count));
 
 int main(int ArgsCount, char *Args[], char *Env[])
 {
@@ -16,8 +22,6 @@ int main(int ArgsCount, char *Args[], char *Env[])
     ChangeToExecutableDirectory(Args);
     
     OS_RebuildSelf(Buffer, Output, ArgsCount, Args, Env);
-    
-    printf("Done.\n");
     
     return 0;
 }

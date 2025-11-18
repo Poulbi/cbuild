@@ -1,30 +1,66 @@
 // raddbg 0.9.24 project file
 
+recent_file: path: "code/os_windows.c"
+recent_file: path: "code/cbuild.c"
+recent_file: path: "code/raddbg_markup.h"
+recent_file: path: "D:/a/_work/1/s/src/vctools/crt/vcstartup/src/startup/exe_common.inl"
+recent_file: path: "build/cbuild.exe"
+recent_file: path: "code/cbuild.c"
+recent_file: path: "code/os_windows.c"
+recent_file: path: "code/raddbg_markup.h"
+recent_file: path: "code/cbuild.h"
 recent_file: path: "code/build.c"
 recent_file: path: "code/build.h"
-recent_file: path: "D:/a/_work/1/s/src/vctools/crt/vcstartup/src/startup/exe_common.inl"
-recent_file: path: "code/os_windows.c"
 recent_file: path: "build.raddbg_project"
 debug_info:
 {
   path: "C:/Users/zebra/Projects/build/build/build.pdb"
   timestamp: 66198742490543
 }
-target:
-{
-  executable: "build/build.exe"
-  working_directory: "build/"
-  enabled: 1
-  debug_subprocesses: 1
-  arguments: norebuild
-}
 breakpoint:
 {
   source_location: "code/build.c:19:1"
-  hit_count: 1
+  hit_count: 0
 }
 breakpoint:
 {
   source_location: "code/build.h:182:1"
+  hit_count: 0
+}
+debug_info:
+{
+  path: "C:/Users/zebra/Projects/cbuild/build/cbuild.pdb"
+  timestamp: 66198759762263
+}
+debug_info:
+{
+  path: "C:/Users/zebra/Projects/cbuild/build/cbuild_temp.pdb"
+  timestamp: 66198759533597
+}
+breakpoint:
+{
+  source_location: "code/cbuild.c:12:1"
+  hit_count: 0
+}
+target:
+{
+  executable: "build/cbuild.exe"
+  working_directory: build
+  enabled: 1
+  debug_subprocesses: 1
+}
+breakpoint:
+{
+  source_location: "code/cbuild.c:13:1"
+  hit_count: 1
+}
+breakpoint:
+{
+  source_location: "code/os_windows.c:74:1"
+  hit_count: 0
+}
+breakpoint:
+{
+  source_location: "code/os_windows.c:101:1"
   hit_count: 0
 }

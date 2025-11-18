@@ -1,2 +1,7 @@
-- Reuse one child process for running commands.
+- Reuse the child process for running commands.
   - Maybe two if you need to pipe?
+  - There might be errors in case the process is stateful?
+
+- 
+
+- 
