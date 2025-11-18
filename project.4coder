@@ -1,5 +1,5 @@
 version(2);
-project_name = "cshell";
+project_name = "cbuild";
 patterns = {
     "*.c",
     "*.cpp",

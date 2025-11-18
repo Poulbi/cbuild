@@ -1,16 +1,11 @@
 
 #ifndef OS_LINUX_C
 #define OS_LINUX_C
-//~ API
-#define os_command_result linux_command_result
 
-#define OS_RunCommandString LinuxRunCommandString
-#define OS_ChangeToExecutableDirectory LinuxChangeToExecutableDirectory
-#define OS_RebuildSelf LinuxRebuildSelf
-
-#define Assert(Expression) if(!(Expression)) { __asm__ volatile("int3"); } 
-
-#define OS_Define "-DOS_LINUX=1"
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/ioctl.h>
+#include <linux/limits.h>
 
 //~ Types
 struct linux_command_result
@@ -276,29 +271,6 @@ LinuxChangeDirectory(char *Path)
 }
 
 internal void
-LinuxChangeToExecutableDirectory(char *Args[])
-{
-    char *ExePath = Args[0];
-    s32 Length = (s32)CountCString(ExePath);
-    char ExecutableDirPath[PATH_MAX] = {};
-    s32 LastSlash = 0;
-    for(s32 At = 0;
-        At < Length;
-        At++)
-    {
-        if(ExePath[At] == '/')
-        {
-            LastSlash = At;
-        }
-    }
-    MemoryCopy(ExecutableDirPath, ExePath, LastSlash);
-    ExecutableDirPath[LastSlash] = 0;
-    
-    LinuxChangeDirectory(ExecutableDirPath);
-}
-
-
-internal void
 LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
 {
     b32 Rebuild = true;
@@ -321,20 +293,18 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
     {
         printf("[self compile]\n");
         str8_list BuildCommandList = CommonBuildCommand(false, true, true);
-        Str8ListAppend(&BuildCommandList, S8Lit("-o build ../code/build.c"));
+        Str8ListAppend(&BuildCommandList, S8Lit("-o cbuild " __FILE__));
         str8 BuildCommand = Str8ListJoin(BuildCommandList, sizeof(OutputBuffer), OutputBuffer, ' ');
         
         //printf("%*s\n", (int)BuildCommand.Size, BuildCommand.Data);
         
         os_command_result CommandResult = OS_RunCommandString(BuildCommand, Env, true);
         
-#if 0        
         umm BytesRead = LinuxErrorWrapperRead(CommandResult.Stderr, OutputBuffer, CommandResult.StderrBytesToRead);
         if(BytesRead)
         {
             printf("%*s\n", (int)BytesRead, OutputBuffer);
         }
-#endif
         
         // Run without rebuilding
         char *Arguments[64] = {};
@@ -357,6 +327,7 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
         
         _exit(0);
     }
+    
 }
 
 #endif // OS_LINUX_IMPLEMENTATION

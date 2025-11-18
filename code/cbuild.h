@@ -3,15 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#if OS_LINUX
-// POSIX
-#include <unistd.h>
-// Linux
-#include <sys/wait.h>
-#include <sys/ioctl.h>
-#include <linux/limits.h>
-#endif
-
 // External
 #include <lr/lr_types.h>
 // Internal
@@ -37,9 +28,6 @@ struct str8_list
     umm Capacity;
 };
 typedef struct str8_list str8_list;
-
-//~ Global variables
-global_variable u8 OutputBuffer[Kilobytes(64)] = {};
 
 //~ Strings
 umm CountCString(char *String)
@@ -107,18 +95,28 @@ str8 Str8ListJoin(str8_list List, umm BufferSize, u8 *Buffer, u8 Char)
 }
 
 //~ Helpers
-str8_list CommonBuildCommand(b32 GCC, b32 Clang, b32 Debug)
+str8_list CommonBuildCommand(str8 StringsBuffer, b32 GCC, b32 Clang, b32 Debug)
 {
     str8_list BuildCommand = {};
+    
+#if OS_WINDOWS
+    b32 Windows = true;
+#else
+    b32 Windows = false;
+#endif
+    
+#if OS_LINUX
+    b32 Linux = true;
+#else
+    b32 Linux = false;
+#endif
     
     // Exclusive arguments
     if(GCC) Clang = false;
     b32 Release = !Debug;
     
-    u8 StringsBuffer[Kilobytes(4)] = {};
-    BuildCommand.Strings = (str8 *)StringsBuffer;
-    BuildCommand.Capacity = ArrayCount(StringsBuffer)/sizeof(str8);
-    
+    BuildCommand.Strings = (str8 *)(StringsBuffer.Data);
+    BuildCommand.Capacity = StringsBuffer.Size/sizeof(str8);
     
     str8 CommonCompilerFlags = S8Lit(OS_Define "-fsanitize-trap -nostdinc++");
     str8 CommonWarningFlags = S8Lit("-Wall -Wextra -Wconversion -Wdouble-promotion -Wno-sign-conversion -Wno-sign-compare -Wno-double-promotion -Wno-unused-but-set-variable -Wno-unused-variable -Wno-write-strings -Wno-pointer-arith -Wno-unused-parameter -Wno-unused-function");
@@ -174,7 +172,23 @@ str8_list CommonBuildCommand(b32 GCC, b32 Clang, b32 Debug)
         Str8ListAppend(&BuildCommand, S8Lit("-Wno-cast-function-type -Wno-missing-field-initializers -Wno-int-to-pointer-cast"));
     }
     
-    Str8ListAppend(&BuildCommand, LinuxLinkerFlags);
+    if(Linux)
+    {
+        Str8ListAppend(&BuildCommand, LinuxLinkerFlags);
+    }
+    
+    if(Windows)
+    {
+        ZeroMemory(&BuildCommand, sizeof(BuildCommand));
+        BuildCommand.Strings = (str8 *)StringsBuffer.Data;
+        BuildCommand.Capacity = StringsBuffer.Size/sizeof(str8);
+        
+        Str8ListAppend(&BuildCommand, S8Lit("cl"));
+        Str8ListAppend(&BuildCommand, S8Lit(OS_Define));
+        Str8ListAppend(&BuildCommand, S8Lit("-MTd -Gm- -nologo -GR- -EHa- -Oi -FC -Z7"));
+        Str8ListAppend(&BuildCommand, S8Lit("-WX -W4 -wd4459 -wd4456 -wd4201 -wd4100 -wd4101 -wd4189 -wd4505 -wd4996 -wd4389 -wd4244"));
+        Str8ListAppend(&BuildCommand, S8Lit("-I..\\.."));
+    }
     
     printf("%*s mode\n", (int)Mode.Size, Mode.Data);
     printf("%*s compile\n", (int)Compiler.Size, Compiler.Data);
@@ -186,3 +200,26 @@ str8_list CommonBuildCommand(b32 GCC, b32 Clang, b32 Debug)
 //~ OS
 #define OS_IMPLEMENTATION
 #include "os.c"
+
+internal void
+ChangeToExecutableDirectory(char *Args[])
+{
+    char *ExePath = Args[0];
+    s32 Length = (s32)CountCString(ExePath);
+    char ExecutableDirPath[OS_PathMaxLength] = {};
+    
+    s32 LastSlash = 0;
+    for(s32 At = 0;
+        At < Length;
+        At++)
+    {
+        if(ExePath[At] == OS_PathSeparator)
+        {
+            LastSlash = At;
+        }
+    }
+    MemoryCopy(ExecutableDirPath, ExePath, LastSlash);
+    ExecutableDirPath[LastSlash] = 0;
+    
+    OS_ChangeDirectory(ExecutableDirPath);
+}
