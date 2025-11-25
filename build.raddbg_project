@@ -1,14 +1,14 @@
 // raddbg 0.9.24 project file
 
-recent_file: path: "code/os_windows.c"
 recent_file: path: "code/cbuild.c"
+recent_file: path: "code/os_windows.c"
+recent_file: path: "code/cbuild.h"
 recent_file: path: "code/raddbg_markup.h"
 recent_file: path: "D:/a/_work/1/s/src/vctools/crt/vcstartup/src/startup/exe_common.inl"
 recent_file: path: "build/cbuild.exe"
 recent_file: path: "code/cbuild.c"
 recent_file: path: "code/os_windows.c"
 recent_file: path: "code/raddbg_markup.h"
-recent_file: path: "code/cbuild.h"
 recent_file: path: "code/build.c"
 recent_file: path: "code/build.h"
 recent_file: path: "build.raddbg_project"
@@ -30,17 +30,12 @@ breakpoint:
 debug_info:
 {
   path: "C:/Users/zebra/Projects/cbuild/build/cbuild.pdb"
-  timestamp: 66198759762263
+  timestamp: 66199358165237
 }
 debug_info:
 {
   path: "C:/Users/zebra/Projects/cbuild/build/cbuild_temp.pdb"
   timestamp: 66198759533597
-}
-breakpoint:
-{
-  source_location: "code/cbuild.c:12:1"
-  hit_count: 0
 }
 target:
 {
@@ -51,11 +46,6 @@ target:
 }
 breakpoint:
 {
-  source_location: "code/cbuild.c:13:1"
-  hit_count: 1
-}
-breakpoint:
-{
   source_location: "code/os_windows.c:74:1"
   hit_count: 0
 }
@@ -63,4 +53,9 @@ breakpoint:
 {
   source_location: "code/os_windows.c:101:1"
   hit_count: 0
+}
+breakpoint:
+{
+  source_location: "code/cbuild.c:15:1"
+  hit_count: 1
 }

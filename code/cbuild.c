@@ -7,8 +7,10 @@
 global_variable u8 OutputBuffer[Kilobytes(64)] = {};
 global_variable u8 StringsBuffer[Kilobytes(4)] = {};
 
+#if 0
 raddbg_type_view(str8, no_addr(cast(char *)(array(Data, Size))));
 raddbg_type_view(str8_list, array(Strings, Count));
+#endif
 
 int main(int ArgsCount, char *Args[], char *Env[])
 {
