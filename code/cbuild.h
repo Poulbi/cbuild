@@ -3,10 +3,17 @@
 #include <stdio.h>
 #include <string.h>
 
+#define SOURCE "example.c"
+
+#ifndef SOURCE
+# error "You must set SOURCE"
+#endif
+
 // External
 #include <lr/lr_types.h>
 // Internal
 #include "os.c"
+
 
 //~ Macros
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
@@ -100,18 +107,6 @@ str8_list CommonBuildCommand(str8 StringsBuffer, b32 GCC, b32 Clang, b32 Debug)
 {
     str8_list BuildCommand = {};
     
-#if OS_WINDOWS
-    b32 Windows = true;
-#else
-    b32 Windows = false;
-#endif
-    
-#if OS_LINUX
-    b32 Linux = true;
-#else
-    b32 Linux = false;
-#endif
-    
     // Exclusive arguments
     if(GCC) Clang = false;
     b32 Release = !Debug;
@@ -173,23 +168,19 @@ str8_list CommonBuildCommand(str8 StringsBuffer, b32 GCC, b32 Clang, b32 Debug)
         Str8ListAppend(&BuildCommand, S8Lit("-Wno-cast-function-type -Wno-missing-field-initializers -Wno-int-to-pointer-cast"));
     }
     
-    if(Linux)
-    {
-        Str8ListAppend(&BuildCommand, LinuxLinkerFlags);
-    }
+#if OS_LINUX    
+    Str8ListAppend(&BuildCommand, LinuxLinkerFlags);
+#elif OS_WINDOWS    
+    ZeroMemory(&BuildCommand, sizeof(BuildCommand));
+    BuildCommand.Strings = (str8 *)StringsBuffer.Data;
+    BuildCommand.Capacity = StringsBuffer.Size/sizeof(str8);
     
-    if(Windows)
-    {
-        ZeroMemory(&BuildCommand, sizeof(BuildCommand));
-        BuildCommand.Strings = (str8 *)StringsBuffer.Data;
-        BuildCommand.Capacity = StringsBuffer.Size/sizeof(str8);
-        
-        Str8ListAppend(&BuildCommand, S8Lit("cl"));
-        Str8ListAppend(&BuildCommand, S8Lit(OS_Define));
-        Str8ListAppend(&BuildCommand, S8Lit("-MTd -Gm- -nologo -GR- -EHa- -Oi -FC -Z7"));
-        Str8ListAppend(&BuildCommand, S8Lit("-WX -W4 -wd4459 -wd4456 -wd4201 -wd4100 -wd4101 -wd4189 -wd4505 -wd4996 -wd4389 -wd4244"));
-        Str8ListAppend(&BuildCommand, S8Lit("-I..\\.."));
-    }
+    Str8ListAppend(&BuildCommand, S8Lit("cl"));
+    Str8ListAppend(&BuildCommand, S8Lit(OS_Define));
+    Str8ListAppend(&BuildCommand, S8Lit("-MTd -Gm- -nologo -GR- -EHa- -Oi -FC -Z7"));
+    Str8ListAppend(&BuildCommand, S8Lit("-WX -W4 -wd4459 -wd4456 -wd4201 -wd4100 -wd4101 -wd4189 -wd4505 -wd4996 -wd4389 -wd4244"));
+    Str8ListAppend(&BuildCommand, S8Lit("-I..\\.."));
+#endif
     
     printf("%*s mode\n", (int)Mode.Size, Mode.Data);
     printf("%*s compile\n", (int)Compiler.Size, Compiler.Data);

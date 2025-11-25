@@ -271,7 +271,7 @@ LinuxChangeDirectory(char *Path)
 }
 
 internal void
-LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
+LinuxRebuildSelf(str8 StringsBuffer, str8 OutputBuffer, int ArgsCount, char *Args[], char *Env[])
 {
     b32 Rebuild = true;
     b32 ForceRebuild = false;
@@ -292,18 +292,18 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
     if(ForceRebuild || Rebuild)
     {
         printf("[self compile]\n");
-        str8_list BuildCommandList = CommonBuildCommand(false, true, true);
+        str8_list BuildCommandList = CommonBuildCommand(StringsBuffer, false, true, true);
         Str8ListAppend(&BuildCommandList, S8Lit("-o cbuild " CBUILD_SOURCE));
-        str8 BuildCommand = Str8ListJoin(BuildCommandList, sizeof(OutputBuffer), OutputBuffer, ' ');
+        str8 BuildCommand = Str8ListJoin(BuildCommandList, OutputBuffer, ' ');
         
         //printf("%*s\n", (int)BuildCommand.Size, BuildCommand.Data);
         
         os_command_result CommandResult = OS_RunCommandString(BuildCommand, Env, true);
         
-        umm BytesRead = LinuxErrorWrapperRead(CommandResult.Stderr, OutputBuffer, CommandResult.StderrBytesToRead);
+        umm BytesRead = LinuxErrorWrapperRead(CommandResult.Stderr, OutputBuffer.Data, CommandResult.StderrBytesToRead);
         if(BytesRead)
         {
-            printf("%*s\n", (int)BytesRead, OutputBuffer);
+            printf("%*s\n", (int)BytesRead, OutputBuffer.Data);
         }
         
         // Run without rebuilding
@@ -318,7 +318,7 @@ LinuxRebuildSelf(int ArgsCount, char *Args[], char *Env[])
                 Arguments[At] = Args[At];
             }
         }
-        Arguments[0] = "./build";
+        Arguments[0] = Args[0];
         // NOTE(luca): We changed to the Executable's build path
         Arguments[At++] = "norebuild";
         Assert(At < ArrayCount(Arguments));
